@@ -39,7 +39,7 @@ if __name__ == "__main__":
     store = load_or_create_project()
 
     dpg.create_context()
-    dpg.create_viewport(title="Executable Map Tool", width=900, height=700)
+    dpg.create_viewport(title="Executable Map Tool", width=916, height=700)
 
     with dpg.font_registry():
         default_font = dpg.add_font("./JetBrainsMono-Regular.ttf", 16)
