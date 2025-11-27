@@ -8,6 +8,7 @@ COLOR_SECTION   = (80,80,180,255)      # Section exists but unknown module state
 COLOR_HOLE      = (240,240,120,255)    # Inside section but no module owns area
 COLOR_OVERLAP   = (255,70,70,255)      # Red conflict
 COLOR_OK        = (70,140,255,255)     # Section + module coverage
+COLOR_BORDER    = (255,255,255,0)      # Borders around bars
 
 HOLE_COLOR      = (255,255,128,255)
 OVERLAP_COLOR   = (255,128,128,255)
@@ -119,25 +120,25 @@ class ReportsUI:
             dpg.draw_text((10,20),"Invalid EXE range",parent=self.bar)
             return
 
-        L,R,T,B = 20,880,10,40
+        L,R,T,B = 20,850,10,40
         span = float(end-start)
         def X(x): return L+((x-start)/span)*(R-L)
 
 
         # 1) grey — unmapped exe space
-        dpg.draw_rectangle((L,T),(R,B), fill=COLOR_NOSEC, parent=self.bar)
+        dpg.draw_rectangle((L,T),(R,B), color=COLOR_BORDER, fill=COLOR_NOSEC, parent=self.bar)
 
 
         # 2) section coverage base
         for s in sorted(p.sections.values(),key=lambda x:x.start):
             dpg.draw_rectangle((X(s.start),T),(X(s.end),B),
-                               fill=COLOR_SECTION,parent=self.bar)
+                               color=COLOR_BORDER,fill=COLOR_SECTION,parent=self.bar)
 
 
         # 3) module holes (yellow)
         for sec, a, b in self.store.compute_module_holes():
             dpg.draw_rectangle((X(a),T),(X(b),B),
-                               fill=COLOR_HOLE,parent=self.bar)
+                               color=COLOR_BORDER,fill=COLOR_HOLE,parent=self.bar)
 
 
         # 4) OK = module-owned inside section
@@ -150,7 +151,7 @@ class ReportsUI:
             cov=sorted(cov)
             for a,b in cov:
                 dpg.draw_rectangle((X(a),T),(X(b),B),
-                                   fill=COLOR_OK,parent=self.bar)
+                                   color=COLOR_BORDER,fill=COLOR_OK,parent=self.bar)
 
 
         # 5) overlaps (draw before OK so they stay visible)
@@ -158,7 +159,7 @@ class ReportsUI:
         for A,Bm,rA,rB,size in overlaps:
             lo,hi = max(rA.start,rB.start), min(rA.end,rB.end)
             dpg.draw_rectangle((X(lo),T),(X(hi),B),
-                               fill=COLOR_OVERLAP,parent=self.bar)
+                               color=COLOR_BORDER,fill=COLOR_OVERLAP,parent=self.bar)
 
 
         # labels
