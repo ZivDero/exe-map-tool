@@ -84,7 +84,7 @@ class ModulesUI:
     def _create_popups(self):
 
         # MODULE popup -------------------------------------------
-        with dpg.window(tag=self.module_popup_id, modal=True,
+        with dpg.window(tag=self.module_popup_id, modal=False,
                         show=False, autosize=True, label="Module Editor"):
             self.module_name_input = dpg.add_input_text(label="Module Name")
 
@@ -93,7 +93,7 @@ class ModulesUI:
                 dpg.add_button(label="Cancel", callback=lambda s,a,u: dpg.hide_item(self.module_popup_id))
 
         # RANGE popup --------------------------------------------
-        with dpg.window(tag=self.range_popup_id, modal=True,
+        with dpg.window(tag=self.range_popup_id, modal=False,
                         show=False, autosize=True, label="Range Editor"):
 
             self.range_sec_combo   = dpg.add_combo(label="Section")
