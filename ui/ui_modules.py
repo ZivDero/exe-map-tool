@@ -97,8 +97,9 @@ class ModulesUI:
                         show=False, autosize=True, label="Range Editor"):
 
             self.range_sec_combo   = dpg.add_combo(label="Section")
-            self.range_start_input = dpg.add_input_text(label="Start (hex)")
-            self.range_end_input   = dpg.add_input_text(label="End (hex)")
+            self.range_start_input = dpg.add_input_text(label="Start (hex)", callback=self._recalc_from_start)
+            self.range_end_input   = dpg.add_input_text(label="End (hex)", callback=self._recalc_from_end)
+            self.range_size_input  = dpg.add_input_text(label="Size (hex)", callback=self._recalc_from_size)
 
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Save",   callback=self._save_range)
@@ -109,6 +110,43 @@ class ModulesUI:
                         autosize=True, show=False, label="Error"):
             self.error_text_id = dpg.add_text("")
             dpg.add_button(label="OK", callback=lambda s,a,u: dpg.hide_item(self.error_popup_id))
+
+    # ============================ RANGE MATH ============================
+
+    def _to_int(self, v):
+        v = str(v).strip()
+        if v.lower().startswith("0x"): v = v[2:]
+        if v.endswith(("h", "H")): v = v[:-1]
+        return int(v, 16)
+
+    def _hx(self, v):
+        if v < 0:
+            return f"-0x{abs(v):X}"
+        return f"0x{v:X}"
+
+    def _recalc_from_start(self, s, a, u=None):
+        try:
+            st = self._to_int(dpg.get_value(self.range_start_input))
+            en = self._to_int(dpg.get_value(self.range_end_input))
+            dpg.set_value(self.range_size_input, self._hx(en - st))
+        except:
+            pass
+
+    def _recalc_from_end(self, s, a, u=None):
+        try:
+            st = self._to_int(dpg.get_value(self.range_start_input))
+            en = self._to_int(dpg.get_value(self.range_end_input))
+            dpg.set_value(self.range_size_input, self._hx(en - st))
+        except:
+            pass
+
+    def _recalc_from_size(self, s, a, u=None):
+        try:
+            st = self._to_int(dpg.get_value(self.range_start_input))
+            sz = self._to_int(dpg.get_value(self.range_size_input))
+            dpg.set_value(self.range_end_input, self._hx(st + sz))
+        except:
+            pass
 
     # ========================================================= MODULE MGMT
 
@@ -233,6 +271,7 @@ class ModulesUI:
         dpg.set_value(self.range_sec_combo, sec_names[0])
         dpg.set_value(self.range_start_input, "")
         dpg.set_value(self.range_end_input, "")
+        dpg.set_value(self.range_size_input, "")
         self.editing_range_old_sec = None  # NEW RANGE
         dpg.show_item(self.range_popup_id)
 
@@ -257,6 +296,7 @@ class ModulesUI:
         dpg.set_value(self.range_sec_combo, sec.name)
         dpg.set_value(self.range_start_input, f"0x{rng.start:X}")
         dpg.set_value(self.range_end_input, f"0x{rng.end:X}")
+        dpg.set_value(self.range_size_input, f"0x{rng.size:X}")
 
         self.editing_range_old_sec = rng.section_id
         dpg.show_item(self.range_popup_id)
