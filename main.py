@@ -34,6 +34,13 @@ def save_project(store):
 
 # ===============================================================
 
+def on_tab_change(sender, app_data):
+    # app_data gives the tab *item id*, so we check its label
+    if dpg.get_item_label(app_data) == "Reports":
+        reports_ui.refresh()
+
+# ===============================================================
+
 if __name__ == "__main__":
 
     store = load_or_create_project()
@@ -49,7 +56,7 @@ if __name__ == "__main__":
     with dpg.window(label="Executable Map Tool", width=900, height=700, pos=(0,0)) as root:
 
         # Tabs container
-        with dpg.tab_bar() as tabs:
+        with dpg.tab_bar(tag="main_tabs") as tabs:
 
             sections_ui = SectionsUI(store, change_callback=lambda: save_project(store))
             modules_ui  = ModulesUI(store, change_callback=lambda: save_project(store))
@@ -59,6 +66,8 @@ if __name__ == "__main__":
             sections_ui.draw(tabs)
             modules_ui.draw(tabs)
             reports_ui.draw(tabs)
+
+            dpg.set_item_callback("main_tabs", on_tab_change)
 
         # After building windows, force UI to refresh from loaded JSON
         sections_ui.refresh()
