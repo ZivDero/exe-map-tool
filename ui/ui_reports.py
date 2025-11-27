@@ -40,7 +40,11 @@ class ReportsUI:
             dpg.add_spacer(height=10)
 
             # ==== 1) SECTION HOLES (NO SECTION) ====
-            dpg.add_text("Executable Holes (No section covers this area):")
+            with dpg.group(horizontal=True):
+                dpg.add_text("Executable Holes (No section covers this area):")
+                dpg.add_button(label="Export CSV",
+                               callback=lambda: self._export_table_csv(self.table_sections, "section_holes.csv"))
+
             with dpg.table(header_row=True, resizable=True,
                            policy=dpg.mvTable_SizingStretchProp) as t1:
                 self.table_sections = t1
@@ -53,7 +57,11 @@ class ReportsUI:
             dpg.add_spacer(height=10)
 
             # ==== 2) MODULE HOLES ====
-            dpg.add_text("Module Holes (Inside a section but no module owns it):")
+            with dpg.group(horizontal=True):
+                dpg.add_text("Executable Holes (No section covers this area):")
+                dpg.add_button(label="Export CSV",
+                               callback=lambda: self._export_table_csv(self.table_sections, "section_holes.csv"))
+
             with dpg.table(header_row=True, resizable=True,
                            policy=dpg.mvTable_SizingStretchProp) as t2:
                 self.table_modules = t2
@@ -67,7 +75,11 @@ class ReportsUI:
             dpg.add_spacer(height=10)
 
             # ==== 3) OVERLAP ====
-            dpg.add_text("Module Overlap Conflicts:")
+            with dpg.group(horizontal=True):
+                dpg.add_text("Module Overlap Conflicts:")
+                dpg.add_button(label="Export CSV",
+                               callback=lambda: self._export_table_csv(self.table_overlap, "overlaps.csv"))
+
             with dpg.table(header_row=True, resizable=True,
                            policy=dpg.mvTable_SizingStretchProp) as t3:
                 self.table_overlap = t3
@@ -205,6 +217,27 @@ class ReportsUI:
                 for id in items:
                     dpg.bind_item_theme(id,self._red())
 
+    def _export_table_csv(self, table_id, filename):
+        import csv
+
+        # COLUMN HEADERS -------------------------------------------------
+        cols = dpg.get_item_children(table_id).get(0, [])
+        headers = [dpg.get_item_label(col) for col in cols]
+
+        # TABLE ROWS -----------------------------------------------------
+        rows = []
+        for row in dpg.get_item_children(table_id).get(1, []):  # slot 1 = table rows
+            cell_items = dpg.get_item_children(row).get(1, [])  # slot 1 = individual cell widgets
+            row_values = [dpg.get_value(item) for item in cell_items]
+            rows.append(row_values)
+
+        # WRITE CSV ------------------------------------------------------
+        with open(filename, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(headers)
+            writer.writerows(rows)
+
+        print(f"[CSV EXPORT] {filename} — {len(rows)} rows + headers written.")
 
     # ================================================================== THEMES
 
