@@ -9,9 +9,10 @@ class ModulesUI:
         self.selected_module_id = None
 
         # POPUP INTERNALS
-        self.module_popup_id     = "module_popup"
-        self.range_popup_id      = "range_popup"
-        self.error_popup_id      = "module_error_popup"
+        self.module_popup_id            = "module_popup"
+        self.range_popup_id             = "range_popup"
+        self.error_popup_id             = "module_error_popup"
+        self.last_range_module_name     = ""
 
         self.module_name_input   = None
         self.range_sec_combo     = None
@@ -39,7 +40,7 @@ class ModulesUI:
 
         with dpg.tab(label="Modules", parent=parent):
 
-            with dpg.group(horizontal=True):                     # <--- ADD/RENAME/DELETE grouped
+            with dpg.group(horizontal=True):
                 dpg.add_button(label="Add",    callback=self._add_module_clicked)
                 dpg.add_button(label="Rename", callback=self._rename_module_clicked)
                 dpg.add_button(label="Delete", callback=self._delete_module_clicked)
@@ -96,7 +97,7 @@ class ModulesUI:
         with dpg.window(tag=self.range_popup_id, modal=False,
                         show=False, autosize=True, label="Range Editor"):
 
-            self.range_sec_combo   = dpg.add_combo(label="Section")
+            self.range_sec_combo   = dpg.add_combo(label="Section", callback=self._range_section_changed)
             self.range_start_input = dpg.add_input_text(label="Start (hex)", callback=self._recalc_from_start)
             self.range_end_input   = dpg.add_input_text(label="End (hex)", callback=self._recalc_from_end)
             self.range_size_input  = dpg.add_input_text(label="Size (hex)", callback=self._recalc_from_size)
@@ -147,6 +148,10 @@ class ModulesUI:
             dpg.set_value(self.range_end_input, self._hx(st + sz))
         except:
             pass
+
+    def _range_section_changed(self, sender, app_data, user_data=None):
+        selected_name = app_data
+        self.last_range_module_name = selected_name  # optional
 
     # ========================================================= MODULE MGMT
 
@@ -267,8 +272,9 @@ class ModulesUI:
         if not self.store.project.sections: return self._err("No sections exist")
 
         sec_names = [s.name for s in self.store.project.sections.values()]
+        selected_section = self.last_range_module_name if self.last_range_module_name and self.last_range_module_name in sec_names else sec_names[0]
         dpg.configure_item(self.range_sec_combo, items=sec_names)
-        dpg.set_value(self.range_sec_combo, sec_names[0])
+        dpg.set_value(self.range_sec_combo, selected_section)
         dpg.set_value(self.range_start_input, "")
         dpg.set_value(self.range_end_input, "")
         dpg.set_value(self.range_size_input, "")
