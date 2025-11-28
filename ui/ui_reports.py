@@ -59,7 +59,7 @@ class ReportsUI:
 
             # ==== 2) MODULE HOLES ====
             with dpg.group(horizontal=True):
-                dpg.add_text("Executable Holes (No section covers this area):")
+                dpg.add_text("Module Holes (Inside a section but no module owns it):")
                 dpg.add_button(label="Export CSV",
                                callback=lambda: self._export_table_csv(self.table_sections, "section_holes.csv"))
 
