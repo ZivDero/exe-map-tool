@@ -61,7 +61,7 @@ class ReportsUI:
             with dpg.group(horizontal=True):
                 dpg.add_text("Module Holes (Inside a section but no module owns it):")
                 dpg.add_button(label="Export CSV",
-                               callback=lambda: self._export_table_csv(self.table_sections, "section_holes.csv"))
+                               callback=lambda: self._export_table_csv(self.table_modules, "module_holes.csv"))
 
             with dpg.table(header_row=True, resizable=True,
                            policy=dpg.mvTable_SizingStretchProp) as t2:
