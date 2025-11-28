@@ -78,6 +78,9 @@ class ModulesUI:
                     dpg.add_button(label="Add Range",
                                    callback=self._add_range_clicked)
 
+        with dpg.handler_registry(tag="global_handlers"):
+            dpg.add_key_press_handler(dpg.mvKey_V, callback=self._handle_paste_request)
+
         self.refresh_modules()
 
     # ========================================================= POPUPS
@@ -375,3 +378,42 @@ class ModulesUI:
     def _err(self,msg):
         dpg.set_value(self.error_text_id,msg)
         dpg.show_item(self.error_popup_id)
+
+    def _handle_paste_request(self, sender, app_data, user_data=None):
+        # Require CTRL — fix using both L/R keys
+        if not (dpg.is_key_down(dpg.mvKey_LControl) or dpg.is_key_down(dpg.mvKey_RControl)):
+            return
+
+        # Only active when Range dialog is open
+        if not dpg.is_item_visible(self.range_popup_id):
+            return
+
+        # If user is typing inside any field → normal paste
+        if any(dpg.is_item_activated(x) for x in (
+                self.range_start_input, self.range_end_input, self.range_size_input
+        )):
+            return
+
+        text = dpg.get_clipboard_text().strip()
+
+        # Allowed input forms:
+        #   "401200\n401A80"
+        #   "401200 401A80"
+        #   "0x401200   0x401A80"
+        # Normalize whitespace and split
+        parts = [p.strip() for p in text.replace("\r", "").replace("\n", " ").split(" ") if p.strip()]
+
+        # Expect exactly 2 values (start, end)
+        if len(parts) != 2:
+            return  # silently ignore anything else
+
+        try:
+            start = parse_hex(parts[0])
+            end = parse_hex(parts[1])
+        except Exception:
+            return
+
+        # Fill values
+        dpg.set_value(self.range_start_input, f"0x{start:X}")
+        dpg.set_value(self.range_end_input, f"0x{end:X}")
+        dpg.set_value(self.range_size_input, self._hx(end - start))
