@@ -239,7 +239,7 @@ class ModulesBySectionUI:
                     dpg.add_text(f"0x{gap_end:X}")
                     dpg.add_text(f"0x{gap_size:X}")
                     dpg.add_text("")  # locked
-                    dpg.add_text("")  # edit
+                    dpg.add_button(label="Add", user_data=gap_start, callback=self._add_range_for_gap)
                     dpg.add_text("")  # delete
 
     # ------------------------- ADD RANGE
@@ -260,6 +260,12 @@ class ModulesBySectionUI:
         dpg.set_value(self.range_size_input, "")
         self.editing_range = None  # ADDING NEW
         dpg.show_item(self.range_popup_id)
+
+    # ------------------------- ADD RANGE FOR GAP
+
+    def _add_range_for_gap(self, sender, app_data, gap_start):
+        self._add_range_clicked()
+        dpg.set_value(self.range_start_input, f"0x{gap_start:X}")
 
     # ------------------------- EDIT RANGE
 
