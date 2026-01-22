@@ -3,7 +3,8 @@ import dearpygui.dearpygui as dpg
 
 from store import ProjectStore
 from ui.ui_sections import SectionsUI
-from ui.ui_modules import ModulesUI
+from ui.ui_modules_by_name import ModulesNyNameUI
+from ui.ui_modules_by_section import ModulesBySectionUI
 from ui.ui_reports import ReportsUI   # assuming you have this
 
 
@@ -59,12 +60,14 @@ if __name__ == "__main__":
         with dpg.tab_bar(tag="main_tabs") as tabs:
 
             sections_ui = SectionsUI(store, change_callback=lambda: save_project(store))
-            modules_ui  = ModulesUI(store, change_callback=lambda: save_project(store))
+            modules_ui  = ModulesNyNameUI(store, change_callback=lambda: save_project(store))
+            inverted_ui = ModulesBySectionUI(store, change_callback=lambda: save_project(store))
             reports_ui  = ReportsUI(store)
 
             # Build UI
             sections_ui.draw(tabs)
             modules_ui.draw(tabs)
+            inverted_ui.draw(tabs)
             reports_ui.draw(tabs)
 
             dpg.set_item_callback("main_tabs", on_tab_change)
@@ -72,6 +75,7 @@ if __name__ == "__main__":
         # After building windows, force UI to refresh from loaded JSON
         sections_ui.refresh()
         modules_ui.refresh_modules()
+        inverted_ui.refresh_sections()
 
     dpg.setup_dearpygui()
     dpg.show_viewport()

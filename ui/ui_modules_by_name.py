@@ -2,7 +2,7 @@ import dearpygui.dearpygui as dpg
 from models import ModuleRange   # must include .locked: bool default = False
 from ui.ui_utils import parse_hex
 
-class ModulesUI:
+class ModulesNyNameUI:
     def __init__(self, store, change_callback):
         self.store = store
         self.on_change = change_callback
@@ -38,7 +38,7 @@ class ModulesUI:
     def draw(self, parent):
         self._create_popups()
 
-        with dpg.tab(label="Modules", parent=parent):
+        with dpg.tab(label="Modules by Name", parent=parent):
 
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Add",    callback=self._add_module_clicked)
