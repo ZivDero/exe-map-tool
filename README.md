@@ -92,3 +92,11 @@ python main.py
 ```
 
 ---
+
+## Screenshots
+
+<img width="1352" height="1039" alt="image" src="https://github.com/user-attachments/assets/b946fe80-39e9-46df-a6d8-283e686b8145" />
+
+<img width="1352" height="1039" alt="image" src="https://github.com/user-attachments/assets/cd316afe-468f-4d88-bd81-50a0c1cbf241" />
+
+
