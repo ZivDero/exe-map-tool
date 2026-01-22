@@ -42,12 +42,15 @@ Color highlights make gaps (yellow) and overlaps (red) stand out immediately.
 
 ```
 [TABS]
- ├── Sections   → define + lock sections + set EXE bounds
- ├── Modules    → assign module owned ranges per section
- └── Reports    → holes and overlaps table view
+ ├── Sections              → define + lock sections + set EXE bounds
+ ├── Modules by Name       → assign in-section ranges per module
+ ├── Modules by Section    → assign module owned ranges per section
+ └── Reports               → holes and overlaps table view
 ```
 
 All address inputs accept hex (`0x`, plain hex, or hex + `H/h` suffix).
+
+Add/Edit dialogs support pasting 2 space/new line-separated values for start and end bounds of a range.
 
 ---
 
@@ -87,15 +90,5 @@ Install + Run:
 pip install dearpygui
 python main.py
 ```
-
----
-
-## Future Enhancements (Potential)
-
-- Address lookup → find owner module instantly
-- Markdown/CSV report export
-- Visual memory bar layout graph
-- Click-report → jump to target range
-- PE/ELF importer for auto-section extraction
 
 ---
