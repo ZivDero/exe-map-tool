@@ -6,6 +6,7 @@ from ui.ui_sections import SectionsUI
 from ui.ui_modules_by_name import ModulesNyNameUI
 from ui.ui_modules_by_section import ModulesBySectionUI
 from ui.ui_reports import ReportsUI   # assuming you have this
+from ui.ui_utils import parse_hex
 
 
 SAVE_FILE = "project.json"   # single source of truth
@@ -42,6 +43,46 @@ def on_tab_change(sender, app_data):
 
 # ===============================================================
 
+def where_ok(store, input_id, label_id):
+    addr_str = dpg.get_value(input_id).strip()
+    try:
+        addr = parse_hex(addr_str)
+    except ValueError:
+        dpg.set_value(label_id, "Invalid address")
+        return
+
+    # Find section
+    section_name = None
+    sec_id = None
+    for sec in store.project.sections.values():
+        if sec.start <= addr < sec.end:
+            section_name = sec.name
+            sec_id = sec.id
+            break
+
+    if not section_name:
+        dpg.set_value(label_id, "Address not in any section")
+        return
+
+    # Find module
+    module_name = None
+    for mod in store.project.modules.values():
+        for rng in mod.ranges:
+            if rng.section_id == sec_id and rng.start <= addr < rng.end:
+                module_name = mod.name
+                break
+        if module_name:
+            break
+
+    if module_name:
+        dpg.set_value(label_id, f"Section: {section_name}, Module: {module_name}")
+    else:
+        dpg.set_value(label_id, f"Section: {section_name}, No module")
+
+    dpg.hide_item("where_popup")
+
+# ===============================================================
+
 if __name__ == "__main__":
 
     store = load_or_create_project()
@@ -55,6 +96,11 @@ if __name__ == "__main__":
 
 
     with dpg.window(label="Executable Map Tool", width=900, height=700, pos=(0,0)) as root:
+
+        # Where? button and label above tabs
+        with dpg.group(horizontal=True):
+            dpg.add_button(label="Where?", callback=lambda: dpg.show_item("where_popup"))
+            where_label_id = dpg.add_text("", tag="where_label")
 
         # Tabs container
         with dpg.tab_bar(tag="main_tabs") as tabs:
@@ -71,6 +117,13 @@ if __name__ == "__main__":
             reports_ui.draw(tabs)
 
             dpg.set_item_callback("main_tabs", on_tab_change)
+
+        # Create the Where? popup
+        with dpg.window(tag="where_popup", modal=True, show=False, autosize=True, label="Where is this address?"):
+            where_input_id = dpg.add_input_text(label="Address (hex)")
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="OK", callback=lambda: where_ok(store, where_input_id, where_label_id))
+                dpg.add_button(label="Cancel", callback=lambda: dpg.hide_item("where_popup"))
 
         # After building windows, force UI to refresh from loaded JSON
         sections_ui.refresh()
