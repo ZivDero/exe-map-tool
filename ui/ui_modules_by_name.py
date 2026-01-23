@@ -1,5 +1,5 @@
 import dearpygui.dearpygui as dpg
-from models import ModuleRange   # must include .locked: bool default = False
+from models import ModuleRange
 from ui.ui_utils import parse_hex
 
 class ModulesNyNameUI:

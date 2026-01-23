@@ -26,7 +26,6 @@ class ProjectStore:
 
         p = Project()
 
-        # --- exe bounds restored correctly
         p.exe_start = data.get("exe_start", None)
         p.exe_end   = data.get("exe_end", None)
 

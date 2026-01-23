@@ -5,7 +5,7 @@ from store import ProjectStore
 from ui.ui_sections import SectionsUI
 from ui.ui_modules_by_name import ModulesNyNameUI
 from ui.ui_modules_by_section import ModulesBySectionUI
-from ui.ui_reports import ReportsUI   # assuming you have this
+from ui.ui_reports import ReportsUI
 from ui.ui_utils import parse_hex
 
 
@@ -20,7 +20,7 @@ def load_or_create_project():
     if os.path.exists(SAVE_FILE):
         print(f"Loading project: {SAVE_FILE}")
         try:
-            store.load(SAVE_FILE)        # <<—— MUST BE CALLED
+            store.load(SAVE_FILE)
         except Exception as e:
             print(f"Failed to load project, creating new: {e}")
     else:
