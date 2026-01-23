@@ -272,10 +272,22 @@ class ModulesNyNameUI:
 
     def _add_range_clicked(self):
         if not self.selected_module_id: return self._err("Select module first")
-        if not self.store.project.sections: return self._err("No sections exist")
+        mod = self.store.project.modules[self.selected_module_id]
 
-        sec_names = [s.name for s in self.store.project.sections.values()]
-        selected_section = self.last_range_module_name if self.last_range_module_name and self.last_range_module_name in sec_names else sec_names[0]
+        # Filter sections that don't have range for this module
+        available_secs = [s for s in self.store.project.sections.values() if not any(r.section_id == s.id for r in mod.ranges)]
+        if not available_secs: return self._err("Module already has ranges in all sections")
+
+        sec_names = [s.name for s in available_secs]
+        if self.last_range_module_name:
+            if self.last_range_module_name in sec_names:
+                selected_section = self.last_range_module_name
+            else:
+                sorted_names = sorted(sec_names)
+                candidates = [n for n in sorted_names if n > self.last_range_module_name]
+                selected_section = candidates[0] if candidates else sec_names[0]
+        else:
+            selected_section = sec_names[0]
         dpg.configure_item(self.range_sec_combo, items=sec_names)
         dpg.set_value(self.range_sec_combo, selected_section)
         dpg.set_value(self.range_start_input, "")
