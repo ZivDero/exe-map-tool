@@ -44,6 +44,8 @@ class ModulesNyNameUI:
                 dpg.add_button(label="Add",    callback=self._add_module_clicked)
                 dpg.add_button(label="Rename", callback=self._rename_module_clicked)
                 dpg.add_button(label="Delete", callback=self._delete_module_clicked)
+                dpg.add_button(label="Up",     callback=self._move_module_up_clicked)
+                dpg.add_button(label="Down",   callback=self._move_module_down_clicked)
 
             dpg.add_spacer(height=6)
 
@@ -159,15 +161,19 @@ class ModulesNyNameUI:
     # ========================================================= MODULE MGMT
 
     def refresh_modules(self):
-        names = [m.name for m in self.store.project.modules.values()]
+        modules = list(self.store.project.modules.values())
+        names = [m.name for m in modules]
         dpg.configure_item(self.module_list_id, items=names)
 
         # auto-select something if nothing is selected
         if self.selected_module_id not in self.store.project.modules:
             if names:
-                first = next(iter(self.store.project.modules.values()))
+                first = modules[0]
                 self.selected_module_id = first.id
                 dpg.set_value(self.module_list_id, first.name)
+        elif self.selected_module_id is not None:
+            selected = self.store.project.modules[self.selected_module_id]
+            dpg.set_value(self.module_list_id, selected.name)
 
         self.refresh_ranges()
 
@@ -197,6 +203,20 @@ class ModulesNyNameUI:
         self.selected_module_id = None
         self.on_change()
         self.refresh_modules()
+
+    def _move_module_up_clicked(self):
+        self._move_selected_module(-1)
+
+    def _move_module_down_clicked(self):
+        self._move_selected_module(1)
+
+    def _move_selected_module(self, offset):
+        if not self.selected_module_id:
+            return self._err("No module selected")
+
+        if self.store.move_module(self.selected_module_id, offset):
+            self.on_change()
+            self.refresh_modules()
 
     def _save_module(self, sender=None, app_data=None, user_data=None):
         name = dpg.get_value(self.module_name_input).strip()

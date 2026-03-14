@@ -142,6 +142,22 @@ class ProjectStore:
     def delete_module(self, mod_id):
         del self.project.modules[mod_id]
 
+    def move_module(self, mod_id, offset):
+        module_ids = list(self.project.modules.keys())
+
+        try:
+            index = module_ids.index(mod_id)
+        except ValueError:
+            return False
+
+        target_index = index + offset
+        if target_index < 0 or target_index >= len(module_ids):
+            return False
+
+        module_ids[index], module_ids[target_index] = module_ids[target_index], module_ids[index]
+        self.project.modules = {module_id: self.project.modules[module_id] for module_id in module_ids}
+        return True
+
     # =============================================================
     # ----- MODULE RANGES ------------------------------------------
     # =============================================================
