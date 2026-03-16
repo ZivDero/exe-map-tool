@@ -29,6 +29,7 @@ class ModuleRange:
 class Module:
     id: int
     name: str
+    number: int = 0
     ranges: list = field(default_factory=list)
 
 

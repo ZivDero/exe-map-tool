@@ -7,7 +7,7 @@ class ModulesBySectionUI:
         self.store = store
         self.on_change = change_callback
         self.selected_section_id = None
-        self.last_selected_module = None
+        self.last_selected_module_id = None
 
         # POPUP INTERNALS
         self.range_popup_id             = "inverted_range_popup"
@@ -132,7 +132,11 @@ class ModulesBySectionUI:
 
     def _range_module_changed(self, sender, app_data, user_data=None):
         selected_name = app_data
-        self.last_selected_module = selected_name
+        for mod in self.store.project.modules.values():
+            if mod.name == selected_name:
+                self.last_selected_module_id = mod.id
+                return
+        self.last_selected_module_id = None
 
     # ========================================================= SECTION MGMT
 
@@ -258,13 +262,11 @@ class ModulesBySectionUI:
         if not available_mods: return self._err("All modules already have ranges in this section")
 
         mod_names = [m.name for m in available_mods]
-        if self.last_selected_module:
-            if self.last_selected_module in mod_names:
-                selected = self.last_selected_module
-            else:
-                sorted_names = sorted(mod_names)
-                candidates = [n for n in sorted_names if n > self.last_selected_module]
-                selected = candidates[0] if candidates else mod_names[0]
+        if self.last_selected_module_id and self.last_selected_module_id in self.store.project.modules:
+            selected_mod = self.store.project.modules[self.last_selected_module_id]
+            selected = selected_mod.name
+            if selected not in mod_names:
+                selected = mod_names[0]
         else:
             selected = mod_names[0]
         dpg.configure_item(self.range_module_combo, items=mod_names)
@@ -292,7 +294,7 @@ class ModulesBySectionUI:
         mod_names = [m.name for m in self.store.project.modules.values()]
         dpg.configure_item(self.range_module_combo, items=mod_names)
         dpg.set_value(self.range_module_combo, mod.name)
-        self.last_selected_module = mod.name
+        self.last_selected_module_id = mod.id
 
         dpg.set_value(self.range_start_input, f"0x{rng.start:X}")
         dpg.set_value(self.range_end_input, f"0x{rng.end:X}")
@@ -305,7 +307,9 @@ class ModulesBySectionUI:
 
     def _save_range(self):
         mod_name = dpg.get_value(self.range_module_combo)
-        target_mod = next(m for m in self.store.project.modules.values() if m.name == mod_name)
+        target_mod = next((m for m in self.store.project.modules.values() if m.name == mod_name), None)
+        if target_mod is None:
+            return self._err("Select a valid module")
 
         try:
             start = parse_hex(dpg.get_value(self.range_start_input))
@@ -340,7 +344,7 @@ class ModulesBySectionUI:
 
         self.on_change()
         dpg.hide_item(self.range_popup_id)
-        self.last_selected_module = target_mod.name
+        self.last_selected_module_id = target_mod.id
         self.refresh_ranges()
 
     # ------------------- DELETE RANGE

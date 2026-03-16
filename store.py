@@ -7,11 +7,16 @@ class ProjectStore:
     def __init__(self):
         self.project = Project()
 
+    def renumber_modules(self):
+        for index, mod in enumerate(self.project.modules.values(), start=1):
+            mod.number = index
+
     # =============================================================
     # SAVE PROJECT → JSON
     # =============================================================
 
     def save(self, filename="project.json"):
+        self.renumber_modules()
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(asdict(self.project), f, indent=4)
         print(f"[STORE] Saved {filename}")
@@ -56,7 +61,11 @@ class ProjectStore:
             mod_data = mod_data.values()
 
         for m in mod_data:
-            mod = Module(id=m["id"], name=m["name"])
+            mod = Module(
+                id=m["id"],
+                name=m["name"],
+                number=m.get("number", 0)
+            )
 
             for r in m.get("ranges", []):
                 mod.ranges.append(ModuleRange(
@@ -69,6 +78,7 @@ class ProjectStore:
             p.modules[mod.id] = mod
 
         self.project = p
+        self.renumber_modules()
         print(f"[STORE] Loaded {filename}")
 
     # =============================================================
@@ -134,6 +144,7 @@ class ProjectStore:
         mod = Module(p.next_module_id, name)
         p.modules[mod.id] = mod
         p.next_module_id += 1
+        self.renumber_modules()
         return mod
 
     def update_module(self, mod_id, new_name):
@@ -141,6 +152,7 @@ class ProjectStore:
 
     def delete_module(self, mod_id):
         del self.project.modules[mod_id]
+        self.renumber_modules()
 
     def move_module(self, mod_id, offset):
         module_ids = list(self.project.modules.keys())
@@ -156,6 +168,7 @@ class ProjectStore:
 
         module_ids[index], module_ids[target_index] = module_ids[target_index], module_ids[index]
         self.project.modules = {module_id: self.project.modules[module_id] for module_id in module_ids}
+        self.renumber_modules()
         return True
 
     # =============================================================
