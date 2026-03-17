@@ -233,7 +233,7 @@ class ModulesNyNameUI:
 
         # ----- create or rename -----
         if self.editing_new_module:
-            mod = self.store.add_module(name)
+            mod = self.store.add_module(name, before_module_id=self.selected_module_id)
             self.selected_module_id = mod.id  # auto-select
         else:
             self.store.update_module(self.selected_module_id, name)

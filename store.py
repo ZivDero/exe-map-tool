@@ -139,11 +139,28 @@ class ProjectStore:
     # -----   MODULE MANAGEMENT   ----------------------------------
     # =============================================================
 
-    def add_module(self, name):
+    def add_module(self, name, before_module_id=None):
+        """Add a new module.
+
+        If before_module_id is provided and exists, the new module is inserted
+        immediately before that module in the current ordering.
+        """
         p = self.project
         mod = Module(p.next_module_id, name)
-        p.modules[mod.id] = mod
         p.next_module_id += 1
+
+        if before_module_id is None or before_module_id not in p.modules:
+            # Default: append at end
+            p.modules[mod.id] = mod
+        else:
+            # Insert in dict order immediately before the given module
+            new_modules = {}
+            for mid, existing in p.modules.items():
+                if mid == before_module_id:
+                    new_modules[mod.id] = mod
+                new_modules[mid] = existing
+            p.modules = new_modules
+
         self.renumber_modules()
         return mod
 
